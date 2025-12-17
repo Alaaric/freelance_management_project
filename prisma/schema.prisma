@@ -1,0 +1,45 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Freelance {
+  id       Int      @id @default(autoincrement())
+  nom      String
+  email    String   @unique
+  skills   String[]
+  tjm      Int
+  projets  Projet[]
+  
+  @@map("freelances")
+}
+
+model Entreprise {
+  id      Int       @id @default(autoincrement())
+  nom     String
+  secteur String
+  projets Projet[]
+  
+  @@map("entreprises")
+}
+
+model Projet {
+  id            Int         @id @default(autoincrement())
+  titre         String
+  description   String
+  skillsRequis  String[]
+  budgetMaxTjm  Int
+  entrepriseId  Int
+  freelanceId   Int?
+  
+  entreprise    Entreprise  @relation(fields: [entrepriseId], references: [id], onDelete: Cascade)
+  freelance     Freelance?  @relation(fields: [freelanceId], references: [id], onDelete: SetNull)
+  
+  @@map("projets")
+}

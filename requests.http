@@ -1,0 +1,72 @@
+### SkillMatch API - Test Requests
+
+@baseUrl = http://localhost:3000
+@freelanceId = 1
+@entrepriseId = 1
+@projetId = 1
+
+### Health Check
+GET {{baseUrl}}/health
+
+
+### Créer un freelance
+POST {{baseUrl}}/api/v1/freelances
+Content-Type: application/json
+
+{
+  "nom": "Nouveau Freelance",
+  "email": "nouveau@example.com",
+  "skills": ["Python", "FastAPI", "PostgreSQL"],
+  "tjm": 450
+}
+
+### Lister tous les freelances
+GET {{baseUrl}}/api/v1/freelances
+
+### Lister les freelances avec filtre par compétence
+GET {{baseUrl}}/api/v1/freelances?skill=Python
+
+### Récupérer un freelance par ID
+GET {{baseUrl}}/api/v1/freelances/{{freelanceId}}
+
+### Récupérer les projets compatibles pour un freelance
+GET {{baseUrl}}/api/v1/freelances/{{freelanceId}}/projets-compatibles
+
+### Postuler à un projet (matching automatique)
+POST {{baseUrl}}/api/v1/freelances/{{freelanceId}}/postuler/{{projetId}}
+
+
+
+### Créer une entreprise
+POST {{baseUrl}}/api/v1/entreprises
+Content-Type: application/json
+
+{
+  "nom": "Nouvelle Entreprise",
+  "secteur": "Technologie"
+}
+
+### Lister toutes les entreprises
+GET {{baseUrl}}/api/v1/entreprises
+
+### Récupérer une entreprise par ID
+GET {{baseUrl}}/api/v1/entreprises/{{entrepriseId}}
+
+### Lister les projets d'une entreprise
+GET {{baseUrl}}/api/v1/entreprises/{{entrepriseId}}/projets
+
+
+
+### Créer un projet
+POST {{baseUrl}}/api/v1/entreprises/{{entrepriseId}}/projets
+Content-Type: application/json
+
+{
+  "titre": "Nouveau Projet",
+  "description": "Description du projet",
+  "skillsRequis": ["Python", "FastAPI", "PostgreSQL"],
+  "budgetMaxTjm": 500
+}
+
+### Récupérer les candidats compatibles pour un projet
+GET {{baseUrl}}/api/v1/entreprises/{{entrepriseId}}/projets/{{projetId}}/candidats-compatibles

@@ -1,0 +1,47 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: skillmatch-postgres
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - skillmatch-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U skillmatch"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: skillmatch-api
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+      - /app/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - skillmatch-network
+    command: sh -c "npx prisma generate && npx prisma migrate dev --name init && npx prisma db seed && npm start"
+
+volumes:
+  postgres_data:
+
+networks:
+  skillmatch-network:
+    driver: bridge
