@@ -18,6 +18,12 @@ docker-compose up --build
 docker-compose down
 ```
 
+## Documentation API
+
+La documentation de l'API est disponible une fois le serveur lancé :
+
+**http://localhost:3000/api-docs**
+
 ## API Endpoints
 
 Les endpoints suivants sont disponibles avec des requêtes prêtes à tester dans le fichier `requests.http`.

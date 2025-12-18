@@ -1,9 +1,11 @@
 import express, { Application, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import swaggerUi from 'swagger-ui-express';
 import v1Router from './routers/v1';
 import { jsonApiResponseMiddleware } from './middleware/json-response.middleware';
 import { globalErrorHandler } from './middleware/error-handler.middleware';
+import { swaggerSpec } from '../docs';
 
 dotenv.config();
 
@@ -28,6 +30,8 @@ app.get('/health', (req: Request, res: Response) => {
     timestamp: new Date().toISOString()
   });
 });
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use('/api/v1', v1Router);
 
