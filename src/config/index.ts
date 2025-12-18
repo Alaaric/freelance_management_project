@@ -1,5 +1,4 @@
-import dotenv from 'dotenv';
+import './env'; // Load environment variables
 
-dotenv.config();
-
+export { env } from './env';
 export { default as prisma } from './database';

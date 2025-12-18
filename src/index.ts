@@ -1,7 +1,7 @@
 import express, { Application } from 'express';
 import cors from 'cors';
 import swaggerUi from 'swagger-ui-express';
-import './config';
+import { env } from './config';
 import v1Router from './routers/v1';
 import healthRouter from './routers/health.router';
 import { jsonApiResponseMiddleware } from './middleware/json-response.middleware';
@@ -10,7 +10,7 @@ import { globalErrorHandler } from './middleware/error-handler.middleware';
 import { swaggerSpec } from '../docs';
 
 const app: Application = express();
-const PORT = process.env.PORT || 3000;
+const PORT = env.PORT;
 
 app.use(cors());
 app.use(express.json());
