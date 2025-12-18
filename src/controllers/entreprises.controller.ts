@@ -2,9 +2,9 @@ import { Request, Response } from 'express';
 import { entreprisesService } from '../services';
 import { CreateEntrepriseDTO, CreateProjetDTO } from '../dto';
 import { EntrepriseValidator } from '../validators';
-import { AppException, ValidationException, NotFoundException } from '../exceptions';
+import { BaseController } from './base.controller';
 
-class EntreprisesController {
+class EntreprisesController extends BaseController {
   async createEntreprise(req: Request, res: Response): Promise<void> {
     try {
       const createEntrepriseDto: CreateEntrepriseDTO = req.body;
@@ -14,11 +14,7 @@ class EntreprisesController {
       const entreprise = await entreprisesService.createEntreprise(createEntrepriseDto);
       res.jsonSuccess(entreprise, 201);
     } catch (error: any) {
-      if (error instanceof AppException) {
-        res.jsonError(error.message, error.statusCode);
-      } else {
-        res.jsonError('Failed to create entreprise', 500);
-      }
+      this.handleError(error, res);
     }
   }
 
@@ -27,11 +23,7 @@ class EntreprisesController {
       const entreprises = await entreprisesService.getAllEntreprises();
       res.jsonSuccess(entreprises);
     } catch (error: any) {
-      if (error instanceof AppException) {
-        res.jsonError(error.message, error.statusCode);
-      } else {
-        res.jsonError('Failed to fetch entreprises', 500);
-      }
+      this.handleError(error, res);
     }
   }
 
@@ -53,11 +45,7 @@ class EntreprisesController {
 
       res.jsonSuccess(entreprise);
     } catch (error: any) {
-      if (error instanceof AppException) {
-        res.jsonError(error.message, error.statusCode);
-      } else {
-        res.jsonError('Failed to fetch entreprise', 500);
-      }
+      this.handleError(error, res);
     }
   }
 
@@ -76,11 +64,7 @@ class EntreprisesController {
       const projet = await entreprisesService.createProjet(entrepriseId, createProjetDto);
       res.jsonSuccess(projet, 201);
     } catch (error: any) {
-      if (error instanceof AppException) {
-        res.jsonError(error.message, error.statusCode);
-      } else {
-        res.jsonError('Failed to create project', 500);
-      }
+      this.handleError(error, res);
     }
   }
 
@@ -96,11 +80,7 @@ class EntreprisesController {
       const projets = await entreprisesService.getProjetsByEntreprise(entrepriseId);
       res.jsonSuccess(projets);
     } catch (error: any) {
-      if (error instanceof AppException) {
-        res.jsonError(error.message, error.statusCode);
-      } else {
-        res.jsonError('Failed to fetch projects', 500);
-      }
+      this.handleError(error, res);
     }
   }
 
@@ -120,11 +100,7 @@ class EntreprisesController {
       );
       res.jsonSuccess(candidats);
     } catch (error: any) {
-      if (error instanceof AppException) {
-        res.jsonError(error.message, error.statusCode);
-      } else {
-        res.jsonError('Failed to fetch compatible candidates', 500);
-      }
+      this.handleError(error, res);
     }
   }
 }

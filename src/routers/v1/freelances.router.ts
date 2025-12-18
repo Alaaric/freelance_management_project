@@ -1,26 +1,13 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import { freelancesController } from '../../controllers';
+import { asyncHandler } from '../../utils/async-handler';
 
 const router = Router();
 
-router.post('/', (req, res) => {
-  freelancesController.createFreelance(req, res);
-});
-
-router.get('/', (req, res) => {
-  freelancesController.getAllFreelances(req, res);
-});
-
-router.get('/:id', (req, res) => {
-  freelancesController.getFreelanceById(req, res);
-});
-
-router.get('/:id/projets-compatibles', (req, res) => {
-  freelancesController.getCompatibleProjects(req, res);
-});
-
-router.post('/:id/postuler/:projetId', (req, res) => {
-  freelancesController.postulerAProjet(req, res);
-});
+router.post('/', asyncHandler((req: Request, res: Response) => freelancesController.createFreelance(req, res)));
+router.get('/', asyncHandler((req: Request, res: Response) => freelancesController.getAllFreelances(req, res)));
+router.get('/:id', asyncHandler((req: Request, res: Response) => freelancesController.getFreelanceById(req, res)));
+router.get('/:id/projets-compatibles', asyncHandler((req: Request, res: Response) => freelancesController.getCompatibleProjects(req, res)));
+router.post('/:id/postuler/:projetId', asyncHandler((req: Request, res: Response) => freelancesController.postulerAProjet(req, res)));
 
 export default router;

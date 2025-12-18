@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import v1Router from './routers/v1';
 import { jsonApiResponseMiddleware } from './middleware/json-response.middleware';
+import { globalErrorHandler } from './middleware/error-handler.middleware';
 
 dotenv.config();
 
@@ -33,6 +34,8 @@ app.use('/api/v1', v1Router);
 app.use((req: Request, res: Response) => {
   res.jsonError('Route not found', 404);
 });
+
+app.use(globalErrorHandler);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

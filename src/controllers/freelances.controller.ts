@@ -3,8 +3,9 @@ import { freelancesService } from '../services';
 import { CreateFreelanceDTO, FilterFreelancesDTO } from '../dto';
 import { FreelanceValidator } from '../validators';
 import { AppException, ValidationException, NotFoundException } from '../exceptions';
+import { BaseController } from './base.controller';
 
-class FreelancesController {
+class FreelancesController extends BaseController {
   async createFreelance(req: Request, res: Response): Promise<void> {
     try {
       const createFreelanceDto: CreateFreelanceDTO = req.body;
@@ -14,11 +15,7 @@ class FreelancesController {
       const freelance = await freelancesService.createFreelance(createFreelanceDto);
       res.jsonSuccess(freelance, 201);
     } catch (error: any) {
-      if (error instanceof AppException) {
-        res.jsonError(error.message, error.statusCode);
-      } else {
-        res.jsonError(error.message || 'Internal server error', 500);
-      }
+      this.handleError(error, res);
     }
   }
 
@@ -28,11 +25,7 @@ class FreelancesController {
       const freelances = await freelancesService.getAllFreelances(skill);
       res.jsonSuccess(freelances);
     } catch (error: any) {
-      if (error instanceof AppException) {
-        res.jsonError(error.message, error.statusCode);
-      } else {
-        res.jsonError(error.message || 'Internal server error', 500);
-      }
+      this.handleError(error, res);
     }
   }
 
@@ -52,11 +45,7 @@ class FreelancesController {
 
       res.jsonSuccess(freelance);
     } catch (error: any) {
-      if (error instanceof AppException) {
-        res.jsonError(error.message, error.statusCode);
-      } else {
-        res.jsonError(error.message || 'Internal server error', 500);
-      }
+      this.handleError(error, res);
     }
   }
 
@@ -71,11 +60,7 @@ class FreelancesController {
       const projets = await freelancesService.getCompatibleProjects(id);
       res.jsonSuccess(projets);
     } catch (error: any) {
-      if (error instanceof AppException) {
-        res.jsonError(error.message, error.statusCode);
-      } else {
-        res.jsonError(error.message || 'Internal server error', 500);
-      }
+      this.handleError(error, res);
     }
   }
 
@@ -99,11 +84,7 @@ class FreelancesController {
         res.jsonError(result.message, 400);
       }
     } catch (error: any) {
-      if (error instanceof AppException) {
-        res.jsonError(error.message, error.statusCode);
-      } else {
-        res.jsonError(error.message || 'Internal server error', 500);
-      }
+      this.handleError(error, res);
     }
   }
 }
