@@ -2,9 +2,11 @@ import { Request, Response } from 'express';
 import { freelancesService } from '../services';
 import { CreateFreelanceDTO, FilterFreelancesDTO } from '../dto';
 import { FreelanceValidator } from '../validators';
-import { AppException, ValidationException, NotFoundException } from '../exceptions';
+import { NotFoundException } from '../exceptions';
 import { BaseController } from './base.controller';
+import { HttpStatus } from '../constants/http-status';
 
+const acceptedStatus = 'ACCEPTEE';
 class FreelancesController extends BaseController {
   async createFreelance(req: Request, res: Response): Promise<void> {
     try {
@@ -13,7 +15,7 @@ class FreelancesController extends BaseController {
       FreelanceValidator.validateCreate(createFreelanceDto);
 
       const freelance = await freelancesService.createFreelance(createFreelanceDto);
-      res.jsonSuccess(freelance, 201);
+      res.jsonSuccess(freelance, HttpStatus.CREATED);
     } catch (error: any) {
       this.handleError(error, res);
     }
@@ -23,7 +25,7 @@ class FreelancesController extends BaseController {
     try {
       const { skill } = req.query as FilterFreelancesDTO;
       const freelances = await freelancesService.getAllFreelances(skill);
-      res.jsonSuccess(freelances);
+      res.jsonSuccess(freelances, HttpStatus.OK);
     } catch (error: any) {
       this.handleError(error, res);
     }
@@ -31,10 +33,10 @@ class FreelancesController extends BaseController {
 
   async getFreelanceById(req: Request, res: Response): Promise<void> {
     try {
-      const id = parseInt(req.params.id!);
+      const id = req.validatedIds!.id;
 
-      if (isNaN(id)) {
-        throw new ValidationException('Invalid ID');
+      if (!id) {
+        throw new NotFoundException('Freelance');
       }
 
       const freelance = await freelancesService.getFreelanceById(id);
@@ -43,7 +45,7 @@ class FreelancesController extends BaseController {
         throw new NotFoundException('Freelance');
       }
 
-      res.jsonSuccess(freelance);
+      res.jsonSuccess(freelance, HttpStatus.OK);
     } catch (error: any) {
       this.handleError(error, res);
     }
@@ -51,14 +53,14 @@ class FreelancesController extends BaseController {
 
   async getCompatibleProjects(req: Request, res: Response): Promise<void> {
     try {
-      const id = parseInt(req.params.id!);
+      const id = req.validatedIds!.id;
 
-      if (isNaN(id)) {
-        throw new ValidationException('Invalid ID');
+      if (!id) {
+        throw new NotFoundException('Freelance');
       }
 
       const projets = await freelancesService.getCompatibleProjects(id);
-      res.jsonSuccess(projets);
+      res.jsonSuccess(projets, HttpStatus.OK);
     } catch (error: any) {
       this.handleError(error, res);
     }
@@ -66,11 +68,11 @@ class FreelancesController extends BaseController {
 
   async postulerAProjet(req: Request, res: Response): Promise<void> {
     try {
-      const freelanceId = parseInt(req.params.id!);
-      const projetId = parseInt(req.params.projetId!);
-
-      if (isNaN(freelanceId) || isNaN(projetId)) {
-        throw new ValidationException('Invalid IDs');
+      const freelanceId = req.validatedIds!.id;
+      const projetId = req.validatedIds!.projetId;
+      
+      if (!projetId || !freelanceId) {
+        throw new NotFoundException('Project or Freelance');
       }
 
       const result = await freelancesService.postulerAProjet(
@@ -78,11 +80,7 @@ class FreelancesController extends BaseController {
         projetId
       );
 
-      if (result.statut === 'ACCEPTEE') {
-        res.jsonSuccess(result);
-      } else {
-        res.jsonError(result.message, 400);
-      }
+      res.jsonSuccess(result, HttpStatus.OK);
     } catch (error: any) {
       this.handleError(error, res);
     }

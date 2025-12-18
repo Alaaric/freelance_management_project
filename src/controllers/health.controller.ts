@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { BaseController } from './base.controller';
+import { HttpStatus } from '../constants/http-status';
 
 class HealthController extends BaseController {
   async checkHealth(_req: Request, res: Response): Promise<void> {
@@ -7,9 +8,7 @@ class HealthController extends BaseController {
       status: 'ok',
       message: 'SkillMatch API is running',
       timestamp: new Date().toISOString()
-    },
-        200
-    );
+    }, HttpStatus.OK);
   }
 }
 

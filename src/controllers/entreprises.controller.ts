@@ -2,7 +2,9 @@ import { Request, Response } from 'express';
 import { entreprisesService } from '../services';
 import { CreateEntrepriseDTO, CreateProjetDTO } from '../dto';
 import { EntrepriseValidator } from '../validators';
+import { NotFoundException } from '../exceptions';
 import { BaseController } from './base.controller';
+import { HttpStatus } from '../constants/http-status';
 
 class EntreprisesController extends BaseController {
   async createEntreprise(req: Request, res: Response): Promise<void> {
@@ -12,7 +14,7 @@ class EntreprisesController extends BaseController {
       EntrepriseValidator.validateCreate(createEntrepriseDto);
 
       const entreprise = await entreprisesService.createEntreprise(createEntrepriseDto);
-      res.jsonSuccess(entreprise, 201);
+      res.jsonSuccess(entreprise, HttpStatus.CREATED);
     } catch (error: any) {
       this.handleError(error, res);
     }
@@ -21,7 +23,7 @@ class EntreprisesController extends BaseController {
   async getAllEntreprises(req: Request, res: Response): Promise<void> {
     try {
       const entreprises = await entreprisesService.getAllEntreprises();
-      res.jsonSuccess(entreprises);
+      res.jsonSuccess(entreprises, HttpStatus.OK);
     } catch (error: any) {
       this.handleError(error, res);
     }
@@ -29,21 +31,19 @@ class EntreprisesController extends BaseController {
 
   async getEntrepriseById(req: Request, res: Response): Promise<void> {
     try {
-      const id = parseInt(req.params.id!);
+      const id = req.validatedIds!.id;
 
-      if (isNaN(id)) {
-        res.jsonError('Invalid ID', 400);
-        return;
+      if (!id) {
+        throw new NotFoundException('Freelance');
       }
 
       const entreprise = await entreprisesService.getEntrepriseById(id);
 
       if (!entreprise) {
-        res.jsonError('Company not found', 404);
-        return;
+        throw new NotFoundException('Company');
       }
 
-      res.jsonSuccess(entreprise);
+      res.jsonSuccess(entreprise, HttpStatus.OK);
     } catch (error: any) {
       this.handleError(error, res);
     }
@@ -51,18 +51,18 @@ class EntreprisesController extends BaseController {
 
   async createProject(req: Request, res: Response): Promise<void> {
     try {
-      const entrepriseId = parseInt(req.params.id!);
+      const entrepriseId = req.validatedIds!.id;
       const createProjetDto: CreateProjetDTO = req.body;
-
-      if (isNaN(entrepriseId)) {
-        res.jsonError('Invalid ID', 400);
-        return;
+      
+      if (!entrepriseId) {
+        throw new NotFoundException('Entreprise');
       }
+
 
       EntrepriseValidator.validateCreateProjet(createProjetDto);
 
       const projet = await entreprisesService.createProjet(entrepriseId, createProjetDto);
-      res.jsonSuccess(projet, 201);
+      res.jsonSuccess(projet, HttpStatus.CREATED);
     } catch (error: any) {
       this.handleError(error, res);
     }
@@ -70,15 +70,14 @@ class EntreprisesController extends BaseController {
 
   async getProjetsByEntreprise(req: Request, res: Response): Promise<void> {
     try {
-      const entrepriseId = parseInt(req.params.id!);
-
-      if (isNaN(entrepriseId)) {
-        res.jsonError('Invalid ID', 400);
-        return;
+      const entrepriseId = req.validatedIds!.id;
+      
+      if (!entrepriseId) {
+        throw new NotFoundException('Entreprise');
       }
 
       const projets = await entreprisesService.getProjetsByEntreprise(entrepriseId);
-      res.jsonSuccess(projets);
+      res.jsonSuccess(projets, HttpStatus.OK);
     } catch (error: any) {
       this.handleError(error, res);
     }
@@ -86,19 +85,18 @@ class EntreprisesController extends BaseController {
 
   async getCandidatsCompatibles(req: Request, res: Response): Promise<void> {
     try {
-      const entrepriseId = parseInt(req.params.id!);
-      const projetId = parseInt(req.params.projetId!);
+      const entrepriseId = req.validatedIds!.id;
+      const projetId = req.validatedIds!.projetId;
 
-      if (isNaN(entrepriseId) || isNaN(projetId)) {
-        res.jsonError('Invalid IDs', 400);
-        return;
+      if (!entrepriseId || !projetId) {
+        throw new NotFoundException('Entreprise or Project');
       }
 
       const candidats = await entreprisesService.getCandidatsCompatibles(
         entrepriseId,
         projetId
       );
-      res.jsonSuccess(candidats);
+      res.jsonSuccess(candidats, HttpStatus.OK);
     } catch (error: any) {
       this.handleError(error, res);
     }
