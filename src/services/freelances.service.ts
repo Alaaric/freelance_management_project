@@ -1,25 +1,12 @@
 import { CreateFreelanceDTO } from '../dto';
-import { Freelance, Projet, CandidatureResponse } from '../types';
+import { Freelance, Projet, CandidatureResponse, ProjetWithScore } from '../types';
 import { matchingService } from './';
-import { ValidationException, NotFoundException, ConflictException } from '../exceptions';
+import { NotFoundException, ConflictException } from '../exceptions';
 import { freelanceRepository, projetRepository } from '../repositories';
-
-interface ProjetWithScore extends Projet {
-  compatibilityScore: number;
-}
 
 class FreelancesService {
 
   public async createFreelance(data: CreateFreelanceDTO): Promise<Freelance> {
-
-    if (data.tjm < 0) {
-      throw new ValidationException('Daily rate cannot be negative');
-    }
-
-    if (data.skills.length === 0) {
-      throw new ValidationException('Freelance must have at least one skill');
-    }
-
     try {
       return await freelanceRepository.create(data);
     } catch (error: any) {
@@ -60,19 +47,15 @@ class FreelancesService {
 
     const openProjects = await projetRepository.findUnassigned();
 
-    return openProjects
-      .map((projet: Projet): ProjetWithScore => ({
-        ...projet,
-        compatibilityScore: matchingService.calculateCompatibilityScore(
-          freelance.skills,
-          projet.skillsRequis
-        )
-      }))
-      .filter((projet: ProjetWithScore) => 
-        projet.compatibilityScore > 0 && 
-        freelance.tjm <= projet.budgetMaxTjm
+    const projectsWithScores = openProjects.map(projet => ({
+      ...projet,
+      compatibilityScore: matchingService.calculateCompatibilityScore(
+        freelance.skills,
+        projet.skillsRequis
       )
-      .sort((a, b) => b.compatibilityScore - a.compatibilityScore);
+    }));
+
+    return matchingService.filterAndSortProjects(projectsWithScores, freelance.tjm);
   }
 
 

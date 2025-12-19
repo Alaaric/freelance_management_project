@@ -1,4 +1,4 @@
-import type { Projet } from '@prisma/client';
+import type { Projet, Freelance } from '@prisma/client';
 
 export interface MatchingResult {
   success: boolean;
@@ -12,4 +12,12 @@ export interface CandidatureResponse {
   message: string;
   reasons?: string[];
   projet?: Projet;
+}
+
+export interface ProjetWithScore extends Projet {
+  compatibilityScore: number;
+}
+
+export interface FreelanceWithScore extends Freelance {
+  compatibilityScore: number;
 }

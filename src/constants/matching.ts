@@ -1,0 +1,1 @@
+export const MIN_COMPATIBILITY_SCORE = 0;

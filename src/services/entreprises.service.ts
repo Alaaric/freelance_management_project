@@ -1,12 +1,8 @@
 import { CreateEntrepriseDTO, CreateProjetDTO } from '../dto';
-import { Entreprise, Projet, Freelance } from '../types';
+import { Entreprise, Projet, FreelanceWithScore } from '../types';
 import { matchingService } from './';
-import { ValidationException, NotFoundException, BadRequestException } from '../exceptions';
+import { NotFoundException, BadRequestException } from '../exceptions';
 import { entrepriseRepository, projetRepository, freelanceRepository } from '../repositories';
-
-interface FreelanceWithScore extends Freelance {
-  compatibilityScore: number;
-}
 
 class EntreprisesService {
 
@@ -30,14 +26,6 @@ class EntreprisesService {
     const entreprise = await entrepriseRepository.findById(entrepriseId);
     if (!entreprise) {
       throw new NotFoundException('Company');
-    }
-
-    if (data.budgetMaxTjm < 0) {
-      throw new ValidationException('Maximum budget cannot be negative');
-    }
-
-    if (data.skillsRequis.length === 0) {
-      throw new ValidationException('Project must require at least one skill');
     }
 
     return await projetRepository.create(entrepriseId, data);
@@ -76,19 +64,15 @@ class EntreprisesService {
 
     const freelances = await freelanceRepository.findAll();
 
-    return freelances
-      .map((freelance: Freelance): FreelanceWithScore => ({
-        ...freelance,
-        compatibilityScore: matchingService.calculateCompatibilityScore(
-          freelance.skills,
-          projet.skillsRequis
-        )
-      }))
-      .filter((freelance: FreelanceWithScore) => 
-        freelance.compatibilityScore > 0 && 
-        freelance.tjm <= projet.budgetMaxTjm
+    const freelancesWithScores = freelances.map(freelance => ({
+      ...freelance,
+      compatibilityScore: matchingService.calculateCompatibilityScore(
+        freelance.skills,
+        projet.skillsRequis
       )
-      .sort((a, b) => b.compatibilityScore - a.compatibilityScore);
+    }));
+
+    return matchingService.filterAndSortFreelances(freelancesWithScores, projet.budgetMaxTjm);
   }
 }
 

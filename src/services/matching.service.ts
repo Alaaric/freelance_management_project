@@ -1,4 +1,5 @@
-import { Projet, Freelance } from '../types';
+import { Projet, Freelance, ProjetWithScore, FreelanceWithScore } from '../types';
+import { MIN_COMPATIBILITY_SCORE } from '../constants/matching';
 
 class MatchingService {
 
@@ -72,6 +73,30 @@ class MatchingService {
     );
 
     return Math.round((matchingSkills.length / normalizedRequiredSkills.length) * 100);
+  }
+
+  public filterAndSortProjects(
+    projets: ProjetWithScore[],
+    maxBudget: number
+  ): ProjetWithScore[] {
+    return projets
+      .filter(projet => 
+        projet.compatibilityScore > MIN_COMPATIBILITY_SCORE && 
+        maxBudget <= projet.budgetMaxTjm
+      )
+      .sort((a, b) => b.compatibilityScore - a.compatibilityScore);
+  }
+
+  public filterAndSortFreelances(
+    freelances: FreelanceWithScore[],
+    maxBudget: number
+  ): FreelanceWithScore[] {
+    return freelances
+      .filter(freelance => 
+        freelance.compatibilityScore > MIN_COMPATIBILITY_SCORE && 
+        freelance.tjm <= maxBudget
+      )
+      .sort((a, b) => b.compatibilityScore - a.compatibilityScore);
   }
 }
 
