@@ -85,21 +85,24 @@ const projetsData = [
 ];
 
 async function main() {
-  console.log('🌱 Starting database seeding...');
 
-  await prisma.projet.deleteMany();
-  await prisma.freelance.deleteMany();
-  await prisma.entreprise.deleteMany();
+  const existingFreelancesCount = await prisma.freelance.count();
+  const existingEntreprisesCount = await prisma.entreprise.count();
+  
+  if (existingFreelancesCount > 0 || existingEntreprisesCount > 0) {
+    console.log('Database already contains data. Skipping seed.');
+    return;
+  }
+  
+  console.log('Seeding database with initial data...');
 
   const freelances = await Promise.all(
     freelancesData.map(data => prisma.freelance.create({ data }))
   );
-  console.log(`✅ Created ${freelances.length} freelances`);
 
   const entreprises = await Promise.all(
     entreprisesData.map(data => prisma.entreprise.create({ data }))
   );
-  console.log(`✅ Created ${entreprises.length} entreprises`);
 
   const projets = await Promise.all(
     projetsData.map(({ entrepriseIndex, ...data }) =>
@@ -111,18 +114,12 @@ async function main() {
       })
     )
   );
-  console.log(`✅ Created ${projets.length} projets`);
-
-  console.log('🎉 Database seeding completed!');
-  console.log('\n📊 Summary:');
-  console.log(`   - ${freelances.length} freelances`);
-  console.log(`   - ${entreprises.length} entreprises`);
-  console.log(`   - ${projets.length} projets`);
+  console.log('Database seeding completed!');
 }
 
 main()
   .catch((e) => {
-    console.error('❌ Error during seeding:', e);
+    console.error('Error during seeding:', e);
     process.exit(1);
   })
   .finally(async () => {

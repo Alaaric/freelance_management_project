@@ -5,8 +5,8 @@ import { FreelanceValidator } from '../validators';
 import { NotFoundException } from '../exceptions';
 import { BaseController } from './base.controller';
 import { HttpStatus } from '../constants/http-status';
+import { FreelanceMapper, ProjetMapper } from '../mappers';
 
-const acceptedStatus = 'ACCEPTEE';
 class FreelancesController extends BaseController {
   async createFreelance(req: Request, res: Response): Promise<void> {
     try {
@@ -15,7 +15,8 @@ class FreelancesController extends BaseController {
       FreelanceValidator.validateCreate(createFreelanceDto);
 
       const freelance = await freelancesService.createFreelance(createFreelanceDto);
-      res.jsonSuccess(freelance, HttpStatus.CREATED);
+      const dto = FreelanceMapper.toResponseDTO(freelance);
+      res.jsonSuccess(dto, HttpStatus.CREATED);
     } catch (error: any) {
       this.handleError(error, res);
     }
@@ -25,7 +26,8 @@ class FreelancesController extends BaseController {
     try {
       const { skill } = req.query as FilterFreelancesDTO;
       const freelances = await freelancesService.getAllFreelances(skill);
-      res.jsonSuccess(freelances, HttpStatus.OK);
+      const dtos = FreelanceMapper.toResponseDTOList(freelances);
+      res.jsonSuccess(dtos, HttpStatus.OK);
     } catch (error: any) {
       this.handleError(error, res);
     }
@@ -45,7 +47,8 @@ class FreelancesController extends BaseController {
         throw new NotFoundException('Freelance');
       }
 
-      res.jsonSuccess(freelance, HttpStatus.OK);
+      const dto = FreelanceMapper.toResponseDTO(freelance);
+      res.jsonSuccess(dto, HttpStatus.OK);
     } catch (error: any) {
       this.handleError(error, res);
     }
@@ -60,7 +63,8 @@ class FreelancesController extends BaseController {
       }
 
       const projets = await freelancesService.getCompatibleProjects(id);
-      res.jsonSuccess(projets, HttpStatus.OK);
+      const dtos = projets.map(p => ProjetMapper.toWithScoreDTO(p, p.compatibilityScore));
+      res.jsonSuccess(dtos, HttpStatus.OK);
     } catch (error: any) {
       this.handleError(error, res);
     }

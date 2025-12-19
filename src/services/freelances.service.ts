@@ -4,6 +4,10 @@ import { matchingService } from './';
 import { ValidationException, NotFoundException, ConflictException } from '../exceptions';
 import { freelanceRepository, projetRepository } from '../repositories';
 
+interface ProjetWithScore extends Projet {
+  compatibilityScore: number;
+}
+
 class FreelancesService {
 
   public async createFreelance(data: CreateFreelanceDTO): Promise<Freelance> {
@@ -47,8 +51,8 @@ class FreelancesService {
   }
 
 
-  public async getCompatibleProjects(freelanceId: number): Promise<Projet[]> {
-    const freelance = await this.getFreelanceById(freelanceId);
+  public async getCompatibleProjects(freelanceId: number): Promise<ProjetWithScore[]> {
+    const freelance = await freelanceRepository.findById(freelanceId);
     
     if (!freelance) {
       throw new NotFoundException('Freelance');
@@ -56,10 +60,19 @@ class FreelancesService {
 
     const openProjects = await projetRepository.findUnassigned();
 
-    return openProjects.filter((projet: Projet) => {
-      const { compatible } = matchingService.checkCompatibility(freelance, projet);
-      return compatible;
-    });
+    return openProjects
+      .map((projet: Projet): ProjetWithScore => ({
+        ...projet,
+        compatibilityScore: matchingService.calculateCompatibilityScore(
+          freelance.skills,
+          projet.skillsRequis
+        )
+      }))
+      .filter((projet: ProjetWithScore) => 
+        projet.compatibilityScore > 0 && 
+        freelance.tjm <= projet.budgetMaxTjm
+      )
+      .sort((a, b) => b.compatibilityScore - a.compatibilityScore);
   }
 
 
@@ -68,7 +81,7 @@ class FreelancesService {
     projetId: number
   ): Promise<CandidatureResponse> {
 
-    const freelance = await this.getFreelanceById(freelanceId);
+    const freelance = await freelanceRepository.findById(freelanceId);
     if (!freelance) {
       throw new NotFoundException('Freelance');
     }

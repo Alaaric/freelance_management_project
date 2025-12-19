@@ -15,7 +15,7 @@
 docker-compose up --build
 
 # Arrêter l'application
-docker-compose down
+docker-compose down -v
 ```
 
 ## Documentation API

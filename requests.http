@@ -70,3 +70,6 @@ Content-Type: application/json
 
 ### Récupérer les candidats compatibles pour un projet
 GET {{baseUrl}}/api/v1/entreprises/{{entrepriseId}}/projets/{{projetId}}/candidats-compatibles
+
+### Lister tous les projets ouverts (non pourvus)
+GET {{baseUrl}}/api/v1/projets/ouverts

@@ -5,6 +5,7 @@ import { EntrepriseValidator } from '../validators';
 import { NotFoundException } from '../exceptions';
 import { BaseController } from './base.controller';
 import { HttpStatus } from '../constants/http-status';
+import { EntrepriseMapper, ProjetMapper, FreelanceMapper } from '../mappers';
 
 class EntreprisesController extends BaseController {
   async createEntreprise(req: Request, res: Response): Promise<void> {
@@ -12,9 +13,11 @@ class EntreprisesController extends BaseController {
       const createEntrepriseDto: CreateEntrepriseDTO = req.body;
 
       EntrepriseValidator.validateCreate(createEntrepriseDto);
-
+      
       const entreprise = await entreprisesService.createEntreprise(createEntrepriseDto);
-      res.jsonSuccess(entreprise, HttpStatus.CREATED);
+      const dto = EntrepriseMapper.toResponseDTO(entreprise);
+
+      res.jsonSuccess(dto, HttpStatus.CREATED);
     } catch (error: any) {
       this.handleError(error, res);
     }
@@ -23,7 +26,8 @@ class EntreprisesController extends BaseController {
   async getAllEntreprises(req: Request, res: Response): Promise<void> {
     try {
       const entreprises = await entreprisesService.getAllEntreprises();
-      res.jsonSuccess(entreprises, HttpStatus.OK);
+      const dtos = EntrepriseMapper.toResponseDTOList(entreprises);
+      res.jsonSuccess(dtos, HttpStatus.OK);
     } catch (error: any) {
       this.handleError(error, res);
     }
@@ -43,7 +47,8 @@ class EntreprisesController extends BaseController {
         throw new NotFoundException('Company');
       }
 
-      res.jsonSuccess(entreprise, HttpStatus.OK);
+      const dto = EntrepriseMapper.toResponseDTO(entreprise);
+      res.jsonSuccess(dto, HttpStatus.OK);
     } catch (error: any) {
       this.handleError(error, res);
     }
@@ -62,7 +67,8 @@ class EntreprisesController extends BaseController {
       EntrepriseValidator.validateCreateProjet(createProjetDto);
 
       const projet = await entreprisesService.createProjet(entrepriseId, createProjetDto);
-      res.jsonSuccess(projet, HttpStatus.CREATED);
+      const dto = ProjetMapper.toResponseDTO(projet);
+      res.jsonSuccess(dto, HttpStatus.CREATED);
     } catch (error: any) {
       this.handleError(error, res);
     }
@@ -77,7 +83,8 @@ class EntreprisesController extends BaseController {
       }
 
       const projets = await entreprisesService.getProjetsByEntreprise(entrepriseId);
-      res.jsonSuccess(projets, HttpStatus.OK);
+      const dtos = ProjetMapper.toResponseDTOList(projets);
+      res.jsonSuccess(dtos, HttpStatus.OK);
     } catch (error: any) {
       this.handleError(error, res);
     }
@@ -96,7 +103,8 @@ class EntreprisesController extends BaseController {
         entrepriseId,
         projetId
       );
-      res.jsonSuccess(candidats, HttpStatus.OK);
+      const dtos = candidats.map(c => FreelanceMapper.toWithScoreDTO(c, c.compatibilityScore));
+      res.jsonSuccess(dtos, HttpStatus.OK);
     } catch (error: any) {
       this.handleError(error, res);
     }

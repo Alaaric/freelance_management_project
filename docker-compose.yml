@@ -37,7 +37,7 @@ services:
         condition: service_healthy
     networks:
       - skillmatch-network
-    command: sh -c "npx prisma generate && npx prisma migrate dev --name init && npx prisma db seed && npm start"
+    command: sh -c "npx prisma generate && npx prisma migrate dev && npx prisma db seed && npm start"
 
 volumes:
   postgres_data:

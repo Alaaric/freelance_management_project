@@ -4,6 +4,10 @@ import { matchingService } from './';
 import { ValidationException, NotFoundException, BadRequestException } from '../exceptions';
 import { entrepriseRepository, projetRepository, freelanceRepository } from '../repositories';
 
+interface FreelanceWithScore extends Freelance {
+  compatibilityScore: number;
+}
+
 class EntreprisesService {
 
   public async createEntreprise(data: CreateEntrepriseDTO): Promise<Entreprise> {
@@ -23,7 +27,7 @@ class EntreprisesService {
     data: CreateProjetDTO
   ): Promise<Projet> {
 
-    const entreprise = await this.getEntrepriseById(entrepriseId);
+    const entreprise = await entrepriseRepository.findById(entrepriseId);
     if (!entreprise) {
       throw new NotFoundException('Company');
     }
@@ -41,7 +45,7 @@ class EntreprisesService {
 
   public async getProjetsByEntreprise(entrepriseId: number): Promise<Projet[]> {
 
-    const entreprise = await this.getEntrepriseById(entrepriseId);
+    const entreprise = await entrepriseRepository.findById(entrepriseId);
     if (!entreprise) {
       throw new NotFoundException('Company');
     }
@@ -52,9 +56,9 @@ class EntreprisesService {
   public async getCandidatsCompatibles(
     entrepriseId: number,
     projetId: number
-  ): Promise<Freelance[]> {
+  ): Promise<FreelanceWithScore[]> {
 
-    const entreprise = await this.getEntrepriseById(entrepriseId);
+    const entreprise = await entrepriseRepository.findById(entrepriseId);
     if (!entreprise) {
       throw new NotFoundException('Company');
     }
@@ -72,10 +76,19 @@ class EntreprisesService {
 
     const freelances = await freelanceRepository.findAll();
 
-    return freelances.filter((freelance: Freelance) => {
-      const { compatible } = matchingService.checkCompatibility(freelance, projet);
-      return compatible;
-    });
+    return freelances
+      .map((freelance: Freelance): FreelanceWithScore => ({
+        ...freelance,
+        compatibilityScore: matchingService.calculateCompatibilityScore(
+          freelance.skills,
+          projet.skillsRequis
+        )
+      }))
+      .filter((freelance: FreelanceWithScore) => 
+        freelance.compatibilityScore > 0 && 
+        freelance.tjm <= projet.budgetMaxTjm
+      )
+      .sort((a, b) => b.compatibilityScore - a.compatibilityScore);
   }
 }
 
