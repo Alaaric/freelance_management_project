@@ -19,19 +19,22 @@ docker-compose down -v
 ```
 
 L'application démarre avec des seeds de test pré-chargées automatiquement :
-- 5 freelances avec différentes compétences et TJM
-- 3 entreprises dans différents secteurs
-- 5 projets avec des compétences requises variées
+- 5 freelances
+- 3 entreprises
+- 5 projets
 
 ## Documentation API
 
 La documentation de l'API est disponible une fois le serveur lancé :
 
-**http://localhost:3000/api-docs**
+### **http://localhost:3000/api-docs**
+
+---
+## OU
 
 ## API Endpoints
 
-Les endpoints suivants sont disponibles avec des requêtes prêtes à tester dans le fichier `requests.http`.
+Les endpoints suivants sont disponibles avec des requêtes prêtes à tester dans le fichier **`requests.http`**.
 
 ### Health
 - `GET /health` - Vérifier l'état de l'API
