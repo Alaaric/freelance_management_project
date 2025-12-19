@@ -1,6 +1,6 @@
 export const swaggerOptions = {
   definition: {
-    openapi: '3.0.0',
+    openapi: '3.0.3',
     info: {
       title: 'SkillMatch API',
       version: '1.0.0',
@@ -20,6 +20,10 @@ export const swaggerOptions = {
       {
         name: 'Entreprises',
         description: 'Company and project management endpoints'
+      },
+      {
+        name: 'Projets',
+        description: 'Project listing endpoints'
       }
     ]
   },

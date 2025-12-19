@@ -167,7 +167,7 @@
  *         description: Project ID
  *     responses:
  *       200:
- *         description: List of compatible freelance candidates
+ *         description: List of compatible freelance candidates with compatibility scores
  *         content:
  *           application/json:
  *             schema:
@@ -178,7 +178,7 @@
  *                     data:
  *                       type: array
  *                       items:
- *                         $ref: '#/components/schemas/Freelance'
+ *                         $ref: '#/components/schemas/FreelanceWithScore'
  *       404:
  *         description: Company or project not found
  *         content:

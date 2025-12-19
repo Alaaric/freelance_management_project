@@ -37,6 +37,13 @@
  *   get:
  *     summary: Get all freelances
  *     tags: [Freelances]
+ *     parameters:
+ *       - in: query
+ *         name: skill
+ *         schema:
+ *           type: string
+ *         description: Filter freelances by skill (case-insensitive)
+ *         example: Python
  *     responses:
  *       200:
  *         description: List of freelances
@@ -95,7 +102,7 @@
  *         description: Freelance ID
  *     responses:
  *       200:
- *         description: List of compatible projects
+ *         description: List of compatible projects with compatibility scores
  *         content:
  *           application/json:
  *             schema:
@@ -106,7 +113,7 @@
  *                     data:
  *                       type: array
  *                       items:
- *                         $ref: '#/components/schemas/Projet'
+ *                         $ref: '#/components/schemas/ProjetWithScore'
  *       404:
  *         description: Freelance not found
  *         content:

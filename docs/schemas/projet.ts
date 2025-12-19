@@ -22,7 +22,7 @@
  *           items:
  *             type: string
  *           description: Required skills
- *           example: [Python, FastAPI, PostgreSQL]
+ *           example: ["Python", "FastAPI", "PostgreSQL"]
  *         budgetMaxTjm:
  *           type: integer
  *           description: Maximum daily rate budget
@@ -36,6 +36,16 @@
  *           nullable: true
  *           description: Assigned freelance ID
  *           example: null
+ *     
+ *     ProjetWithScore:
+ *       allOf:
+ *         - $ref: '#/components/schemas/Projet'
+ *         - type: object
+ *           properties:
+ *             compatibilityScore:
+ *               type: integer
+ *               description: Compatibility percentage (0-100)
+ *               example: 66
  *     
  *     CreateProjet:
  *       type: object
@@ -58,7 +68,7 @@
  *           items:
  *             type: string
  *           description: Required skills
- *           example: [Python, FastAPI, PostgreSQL]
+ *           example: ["Python", "FastAPI", "PostgreSQL"]
  *         budgetMaxTjm:
  *           type: integer
  *           description: Maximum daily rate budget
